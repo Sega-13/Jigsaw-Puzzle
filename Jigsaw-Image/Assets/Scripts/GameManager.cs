@@ -15,11 +15,18 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform DifficultyLevelScreen;
     [SerializeField] private Transform GameHolder;
     [SerializeField] private Transform PiecePrefab;
+    [SerializeField] private Transform VScroll;
+    [SerializeField] private Transform HScrollContent;
+    [SerializeField] private Transform GameCompleteScreen;
+    [SerializeField] private Transform GamePlayPanel;
+    [SerializeField] private Transform PausePanel;
     private List<Transform> pieces;
     private Vector2Int dimensions;
     private Texture2D jigsawTexture;
     private float width, height;
-
+    private Transform dragingPiece;
+    private Vector3 offset;
+    private int piecesCorrect;
 
 
     void Start()
@@ -62,12 +69,18 @@ public class GameManager : MonoBehaviour
     public void GamePlay()
     {
         DifficultyLevelScreen.gameObject.SetActive(false);
-
+        GamePlayPanel.gameObject.SetActive(true);
         int difficulty = DifficultyLevelButton.instance.GetDifficulty();
         Texture2D currentImage = GetCurrentJiswaImage();
         dimensions = GetJigsawDimension(currentImage,difficulty);
         CreateJigsawPieces(currentImage);
         Scatter();
+        UpdateBorder();
+        piecesCorrect = 0;
+    }
+    public void ShowPause()
+    {
+        PausePanel.gameObject.SetActive(true);
     }
     Vector2Int GetJigsawDimension(Texture2D currentImage,int difficulty)
     {
@@ -117,6 +130,7 @@ public class GameManager : MonoBehaviour
     }
     private void Scatter()
     {
+      //  HScroll.gameObject.SetActive(true);
         // calculate visible orthograhic size of screen.
         float orthoHeight = Camera.main.orthographicSize;
         float screenAspect = (float)Screen.width / Screen.height;
@@ -127,17 +141,99 @@ public class GameManager : MonoBehaviour
 
         orthoWidth -= pieceWidth;
         orthoHeight -= pieceHeight;
-        foreach(Transform piece in pieces)
+       //   float x = -orthoWidth;
+        /*foreach (Transform piece in pieces)
+        {
+
+            piece.position = new Vector3(x, -4, -1);
+            x += pieceWidth;
+
+        }
+*/
+        foreach (Transform piece in pieces)
         {
             float x = Random.Range(-orthoWidth, orthoWidth);
+
             float y = Random.Range(-orthoHeight, orthoHeight);
+
             piece.position = new Vector3(x, y, -1);
+            Debug.Log("Position " + piece.position);
         }
     }
+    void UpdateBorder()
+    {
+        LineRenderer lineRenderer = GameHolder.GetComponent<LineRenderer>();
+        float halfWidth = (width*dimensions.x)/2f;
+        float halfHeight = (height * dimensions.y) / 2f;
+
+        float borderZ = 0;
+        lineRenderer.SetPosition(0,new Vector3(-halfWidth,halfHeight,borderZ));
+        lineRenderer.SetPosition(1, new Vector3(halfWidth, halfHeight, borderZ));
+        lineRenderer.SetPosition(2, new Vector3(halfWidth, -halfHeight, borderZ));
+        lineRenderer.SetPosition(3, new Vector3(-halfWidth, -halfHeight, borderZ));
+        lineRenderer.startWidth = 0.1f;
+        lineRenderer.endWidth = 0.1f;
+        lineRenderer.enabled = true;
+    }
    
-    // Update is called once per frame
     void Update()
     {
+        if(Input.GetMouseButtonDown(0))
+        {
+            RaycastHit2D hit =  Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition),Vector2.zero);
+            if (hit)
+            {
+                dragingPiece = hit.transform;
+                offset = dragingPiece.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                offset += Vector3.back;
+            }
         
+        }
+        if(dragingPiece && Input.GetMouseButtonUp(0))
+        {
+            SnapAndDisableIfCorrect();
+            dragingPiece.position += Vector3.forward;
+            dragingPiece = null;
+        }
+
+        if (dragingPiece)
+        {
+            Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            newPosition += offset;
+            dragingPiece.position = newPosition;
+        }
+        
+    }
+    void SnapAndDisableIfCorrect()
+    {
+        int pieceIndex = pieces.IndexOf(dragingPiece);
+        int col = pieceIndex % dimensions.x;
+        int row = pieceIndex / dimensions.x;
+
+        Vector2 targetPosition = new((-width*dimensions.x/2)+(width*col)+(width/2),
+            (-height*dimensions.y/2)+(height*row)+(height/2));
+        if (Vector2.Distance(dragingPiece.localPosition, targetPosition) < (width / 2))
+        {
+            dragingPiece.localPosition = targetPosition;
+            dragingPiece.GetComponent<BoxCollider2D>().enabled = false;
+            piecesCorrect++;
+            if(piecesCorrect == pieces.Count)
+            {
+                GameCompleteScreen.gameObject.SetActive(true);
+                Debug.Log("DOne");
+            }
+        }
+    }
+    public void RestartGame()
+    {
+        // Destroy all puzzle pieces
+        foreach(Transform piece in pieces)
+        {
+            Destroy(piece.gameObject);
+        }
+        pieces.Clear();
+        GameHolder.GetComponent<LineRenderer>().enabled = false;
+        GameCompleteScreen.gameObject.SetActive(false);
+        VScroll.gameObject.SetActive(true);
     }
 }
