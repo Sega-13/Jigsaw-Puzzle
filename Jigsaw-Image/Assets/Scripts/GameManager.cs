@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
     private int piecesCorrect;
     private bool isGamePaused;
     private int coins;
-    private static int coinsEarned;
+    private  int coinsEarned;
 
     enum GameLevel{
         Easy = 4,
@@ -42,6 +42,7 @@ public class GameManager : MonoBehaviour
     }
     void Start()
     {
+        coinsEarned = PlayerPrefs.GetInt("CoinsEarned", coinsEarned);
         InstantiatingImages();
        
     }
@@ -255,11 +256,14 @@ public class GameManager : MonoBehaviour
             piecesCorrect++;
             if(piecesCorrect == pieces.Count)
             {
+                GamePlayPanel.gameObject.SetActive(false);
                 TimerController.instance.EndTimer();
                 GameCompleteScreen.gameObject.SetActive(true);
                 coinsEarned += coins;
                 coinText.text = coins.ToString();
                 timeTaken.text = TimerController.instance.timerCounter.text;
+                PlayerPrefs.SetInt("CoinsEarned",coinsEarned);
+                PlayerPrefs.Save();
             }
         }
     }
