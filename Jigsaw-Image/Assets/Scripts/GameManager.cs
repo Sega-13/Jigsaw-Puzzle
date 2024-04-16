@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -20,6 +21,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform GameCompleteScreen;
     [SerializeField] private Transform GamePlayPanel;
     [SerializeField] private Transform PausePanel;
+    [SerializeField] private TextMeshProUGUI timeTaken;
     private List<Transform> pieces;
     private Vector2Int dimensions;
     private Texture2D jigsawTexture;
@@ -73,6 +75,7 @@ public class GameManager : MonoBehaviour
         int difficulty = DifficultyLevelButton.instance.GetDifficulty();
         Texture2D currentImage = GetCurrentJiswaImage();
         dimensions = GetJigsawDimension(currentImage,difficulty);
+        TimerController.instance.BeginTimer();
         CreateJigsawPieces(currentImage);
         Scatter();
         UpdateBorder();
@@ -219,8 +222,9 @@ public class GameManager : MonoBehaviour
             piecesCorrect++;
             if(piecesCorrect == pieces.Count)
             {
+                TimerController.instance.EndTimer();
                 GameCompleteScreen.gameObject.SetActive(true);
-                Debug.Log("DOne");
+                timeTaken.text = TimerController.instance.timerCounter.text;
             }
         }
     }
@@ -234,6 +238,8 @@ public class GameManager : MonoBehaviour
         pieces.Clear();
         GameHolder.GetComponent<LineRenderer>().enabled = false;
         GameCompleteScreen.gameObject.SetActive(false);
+        PausePanel.gameObject.SetActive(false);
+        GamePlayPanel.gameObject.SetActive(false);
         VScroll.gameObject.SetActive(true);
     }
 }
