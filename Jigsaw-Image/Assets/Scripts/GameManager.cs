@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform GamePlayPanel;
     [SerializeField] private Transform PausePanel;
     [SerializeField] private TextMeshProUGUI timeTaken;
+    [SerializeField] private TextMeshProUGUI coinText;
+    [SerializeField] private TextMeshProUGUI CoinEarnedText;
     private List<Transform> pieces;
     private Vector2Int dimensions;
     private Texture2D jigsawTexture;
@@ -30,8 +32,14 @@ public class GameManager : MonoBehaviour
     private Vector3 offset;
     private int piecesCorrect;
     private bool isGamePaused;
+    private int coins;
+    private static int coinsEarned;
 
-
+    enum GameLevel{
+        Easy = 4,
+        Medium = 6,
+        Difficult = 8
+    }
     void Start()
     {
         InstantiatingImages();
@@ -40,6 +48,7 @@ public class GameManager : MonoBehaviour
 
     void InstantiatingImages()
     {
+        
         foreach (Texture2D texture in imageTextures)
         {
             Image image = Instantiate(levelSelectPrefab, imageContent);
@@ -76,6 +85,7 @@ public class GameManager : MonoBehaviour
             DifficultyLevelScreen.gameObject.SetActive(false);
             GamePlayPanel.gameObject.SetActive(true);
             int difficulty = DifficultyLevelButton.instance.GetDifficulty();
+            SetCoinValue(difficulty);
             Texture2D currentImage = GetCurrentJiswaImage();
             dimensions = GetJigsawDimension(currentImage, difficulty);
             TimerController.instance.BeginTimer();
@@ -85,6 +95,21 @@ public class GameManager : MonoBehaviour
             piecesCorrect = 0;
         }
         
+    }
+    void SetCoinValue(int difficulty)
+    {
+        switch(difficulty)
+        {
+            case (int)GameLevel.Easy:
+                coins = 10;
+                break;
+            case (int)GameLevel.Medium:
+                coins = 20;
+                break;
+            case (int)GameLevel.Difficult: 
+                coins = 50;
+                break;
+        }
     }
     public void ShowPause()
     {
@@ -188,7 +213,8 @@ public class GameManager : MonoBehaviour
    
     void Update()
     {
-        if(Input.GetMouseButtonDown(0))
+        CoinEarnedText.text = coinsEarned.ToString();
+        if (Input.GetMouseButtonDown(0))
         {
             RaycastHit2D hit =  Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition),Vector2.zero);
             if (hit)
@@ -231,6 +257,8 @@ public class GameManager : MonoBehaviour
             {
                 TimerController.instance.EndTimer();
                 GameCompleteScreen.gameObject.SetActive(true);
+                coinsEarned += coins;
+                coinText.text = coins.ToString();
                 timeTaken.text = TimerController.instance.timerCounter.text;
             }
         }
