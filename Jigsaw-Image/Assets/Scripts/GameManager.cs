@@ -29,6 +29,7 @@ public class GameManager : MonoBehaviour
     private Transform dragingPiece;
     private Vector3 offset;
     private int piecesCorrect;
+    private bool isGamePaused;
 
 
     void Start()
@@ -70,20 +71,26 @@ public class GameManager : MonoBehaviour
     }
     public void GamePlay()
     {
-        DifficultyLevelScreen.gameObject.SetActive(false);
-        GamePlayPanel.gameObject.SetActive(true);
-        int difficulty = DifficultyLevelButton.instance.GetDifficulty();
-        Texture2D currentImage = GetCurrentJiswaImage();
-        dimensions = GetJigsawDimension(currentImage,difficulty);
-        TimerController.instance.BeginTimer();
-        CreateJigsawPieces(currentImage);
-        Scatter();
-        UpdateBorder();
-        piecesCorrect = 0;
+        if (!isGamePaused)
+        {
+            DifficultyLevelScreen.gameObject.SetActive(false);
+            GamePlayPanel.gameObject.SetActive(true);
+            int difficulty = DifficultyLevelButton.instance.GetDifficulty();
+            Texture2D currentImage = GetCurrentJiswaImage();
+            dimensions = GetJigsawDimension(currentImage, difficulty);
+            TimerController.instance.BeginTimer();
+            CreateJigsawPieces(currentImage);
+            Scatter();
+            UpdateBorder();
+            piecesCorrect = 0;
+        }
+        
     }
     public void ShowPause()
     {
         PausePanel.gameObject.SetActive(true);
+        Time.timeScale = 0f;
+        isGamePaused = true;
     }
     Vector2Int GetJigsawDimension(Texture2D currentImage,int difficulty)
     {
@@ -241,5 +248,27 @@ public class GameManager : MonoBehaviour
         PausePanel.gameObject.SetActive(false);
         GamePlayPanel.gameObject.SetActive(false);
         VScroll.gameObject.SetActive(true);
+    }
+
+    public void ResumeGame()
+    {
+       PausePanel.gameObject.SetActive(false );
+        Time.timeScale = 1f;
+        isGamePaused = false;
+    }
+    public void PauseReset()
+    {
+        isGamePaused = false;
+        Time.timeScale = 1f;
+        foreach (Transform piece in pieces)
+        {
+            Destroy(piece.gameObject);
+        }
+        pieces.Clear();
+        GameHolder.GetComponent<LineRenderer>().enabled = false;
+        PausePanel.gameObject.SetActive(false);
+        GamePlayPanel.gameObject.SetActive(false);
+        DifficultyLevelScreen.gameObject.SetActive(true);
+        
     }
 }
