@@ -1,4 +1,4 @@
-                                                                    **#Jigsaw-Puzzle**   
+                                                        **#Jigsaw-Puzzle**   
 
 Rearrange scattered puzzle pieces to form stunning images and put your logic and attention to detail to the test.   
    
@@ -27,7 +27,7 @@ Rearrange scattered puzzle pieces to form stunning images and put your logic and
           •	This isn't strict MVC but mirrors its logic separation.      
 
 **Images**
-
+ ![](https://github.com/Sega-13/Jigsaw-Puzzle/blob/Jigsaw-GamePlayView/Jigsaw-Image/Images/Screenshot%202025-05-20%20075532.png) ![](https://github.com/Sega-13/Jigsaw-Puzzle/blob/Jigsaw-GamePlayView/Jigsaw-Image/Images/Screenshot%202025-05-20%20110607.png) ![](https://github.com/Sega-13/Jigsaw-Puzzle/blob/Jigsaw-GamePlayView/Jigsaw-Image/Images/Screenshot%202025-05-20%20110839.png) ![](https://github.com/Sega-13/Jigsaw-Puzzle/blob/Jigsaw-GamePlayView/Jigsaw-Image/Images/Screenshot%202025-05-20%20110900.png)
           
 
 
