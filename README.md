@@ -24,7 +24,11 @@ Rearrange scattered puzzle pieces to form stunning images and put your logic and
           •	Model: Game state (score, puzzle data).   
           •	View: UI elements (images, buttons, timer).   
           •	Controller: Scripts like GameManager.cs, DifficultyLevelButton.cs.    
-          •	This isn't strict MVC but mirrors its logic separation.    
+          •	This isn't strict MVC but mirrors its logic separation.      
+
+**Images**
+
+          
 
 
 
